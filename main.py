@@ -7,7 +7,7 @@ def calculate(L, d, Q, eps, rho, mu, medium):
     v = (Q / 1000) / (math.pi * d_m ** 2 / 4)
     Re = rho * v * d_m / mu
 
-    if Re < 10000:
+    if Re < 1e4:
         lam = 0.3164 / Re ** 0.25
     else:
         lam = 0.11 * ((eps / 1000) / d_m + 68 / Re) ** 0.25
