@@ -14,7 +14,21 @@ def _validate_n(n: int) -> None:
 
 import math
 import random
-from typing import List, Optional
+from typing import List, Optional, Sequence
+
+def discrete_series(
+    n: int = 1000,
+    population: Sequence[float] = (1, 2, 3, 4, 5),
+    weights: Sequence[float] = (1, 2, 4, 2, 1),
+    seed: Optional[int] = None,
+) -> List[float]:
+    """Генерирует ряд длины n из дискретного распределения (Вариант 7)."""
+    if n < 0:
+        raise ValueError(f"Длина ряда n должна быть >= 0, получено: {n}")
+    if n == 0:
+        return []
+    rng = random.Random(seed)
+    return [float(x) for x in rng.choices(population, weights=weights, k=n)]
 
 def random_series(
     n: int, 

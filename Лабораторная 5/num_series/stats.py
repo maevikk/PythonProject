@@ -34,3 +34,30 @@ def summarize(data: Sequence[float]) -> Dict[str, float]:
         "min": float(min(data)),
         "max": float(max(data)),
     }
+
+from typing import Tuple
+
+def _median_of_sorted(vals: Sequence[float]) -> float:
+    m = len(vals)
+    mid = m // 2
+    if m % 2 == 1:
+        return float(vals[mid])
+    return (float(vals[mid - 1]) + float(vals[mid])) / 2.0
+
+def quartiles_iqr(data: Sequence[float]) -> Tuple[float, float, float]:
+    """Вычисляет Q1, Q3 и IQR = Q3 - Q1 вручную без numpy."""
+    if not data:
+        raise ValueError("Ряд пуст")
+    s = sorted(float(x) for x in data)
+    n = len(s)
+    mid = n // 2
+    if n % 2 == 0:
+        lower = s[:mid]
+        upper = s[mid:]
+    else:
+        lower = s[:mid]
+        upper = s[mid + 1 :]
+    q1 = _median_of_sorted(lower) if lower else float(s[0])
+    q3 = _median_of_sorted(upper) if upper else float(s[-1])
+    iqr = q3 - q1
+    return q1, q3, iqr

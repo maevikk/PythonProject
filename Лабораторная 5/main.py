@@ -8,19 +8,20 @@ import sys
 from typing import List, Optional, Tuple
 
 from num_series import (
-    random_series,
-    sine_series,
-    trend_series,
-    summarize,
-    simple_moving_average,
-    centered_moving_average,
-    exponential_moving_average,
     benchmark_moving_average,
-    
-    save_series_json,
+    centered_moving_average,
+    discrete_series,
+    exponential_moving_average,
     load_series_auto,
+    quartiles_iqr,
+    random_series,
+    save_series_json,
+    simple_moving_average,
+    sine_series,
+    summarize,
+    trend_series,
+    wma,
 )
-from num_series import discrete_series, quartiles_iqr, wma
 
 def build_series(kind: str, n: int, seed: int) -> List[float]:
     """Генерирует ряд заданного типа."""
@@ -68,6 +69,11 @@ def print_stats(stats: dict) -> None:
     print(f"Размах (max - min)    : {stats['spread']:>10.4f}")
     print(f"min / max             : {stats['min']:>10.4f} / {stats['max']:.4f}")
 
+def print_quartiles(q1: float, q3: float, iqr: float) -> None:
+    print(f"Q1                    : {q1:>10.4f}")
+    print(f"Q3                    : {q3:>10.4f}")
+    print(f"IQR (Q3 - Q1)         : {iqr:>10.4f}")
+
 def print_footer() -> None:
     print("=" * 60)
 
@@ -79,7 +85,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--kind",
-        choices=["random", "sine", "trend","discrete"],
+        choices=["random", "sine", "trend", "discrete"],
         default="discrete",
         help="тип генерируемого ряда",
     )
@@ -110,8 +116,7 @@ def build_parser() -> argparse.ArgumentParser:
         help="коэффициент сглаживания для EMA, 0 < alpha <= 1",
     )
     parser.add_argument(
-        "--benchmark",
-        action="store_true",
+        "--benchmark", action="store_true",
         help="замерить время выполнения SMA для list и deque",
     )
     return parser
@@ -146,7 +151,9 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     try:
         stats = summarize(data)
+        q1, q3, iqr = quartiles_iqr(data)
         sma = simple_moving_average(data, args.window)
+        wma_vals = wma(data, args.window)
         ema = exponential_moving_average(data, args.alpha)
         cma = (
             centered_moving_average(data, args.window)
@@ -159,8 +166,10 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     print_header(source)
     print_stats(stats)
+    print_quartiles(q1, q3, iqr)
     print_series("Исходный ряд", data)
     print_series(f"SMA (window={args.window})", sma)
+    print_series(f"WMA (window={args.window})", wma_vals)
     print_series(f"EMA (alpha={args.alpha})", ema)
     if cma is not None:
         print_series(f"Центрированное МА (window={args.window})", cma)
