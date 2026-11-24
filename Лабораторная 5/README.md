@@ -1,27 +1,38 @@
-# Алгоритмическая обработка числовых рядов
+# Алгоритмическая обработка числовых рядов (Вариант 7)
 
-Модульное консольное приложение на Python для генерации числовых рядов, расчёта базовой статистики и вычисления скользящих средних (SMA, центрированное МА, EMA).
+Модульное консольное приложение на Python для генерации числовых рядов, расчёта статистических показателей (среднее, медиана, размах, квартили `Q1`, `Q3` и межквартильный размах `IQR`) и вычисления скользящих средних (`SMA`, `WMA`, центрированное МА, `EMA`).
+
+## Вариант 7
+
+- **Ряд (`discrete`)**: 1000 чисел из дискретного распределения (`random.choices` с заданными весами, по умолчанию значения `[1, 2, 3, 4, 5]` с весами `[1, 2, 4, 2, 1]`).
+- **Дополнительные показатели**: квартили `Q1`, `Q3` и межквартильный размах `IQR = Q3 - Q1` (реализованы вручную).
+- **Скользящие средние**: простая (`SMA`) и взвешенная с линейными весами (`WMA`).
+- **Краевой кейс**: проверка работы при чётном и нечётном окне (в том числе поведение медианы, квартилей и центрированного МА).
 
 ## Структура проекта
 
-- `num_series/` - основной пакет приложения:
-  - `__init__.py` - экспорт публичного API пакета
-  - `generator.py` - формирование числовых рядов
-  - `stats.py` - расчёт базовой статистики (среднее, медиана, размах)
-  - `moving_average.py` - SMA, центрированное МА, EMA и замер производительности
-  - `deque_average.py` - реализация скользящих средних через `deque`
-  - `io_json.py` - сохранение и чтение рядов в формате JSON
-  - `io_file.py` - чтение рядов из текстовых файлов (`.txt`, `.csv`)
-- `main.py` - точка входа CLI
-- `README.md` - описание проекта и примеры запуска
+- `num_series/` — основной пакет приложения:
+  - `__init__.py` — экспорт публичного API пакета
+  - `generator.py` — формирование числовых рядов (`random_series`, `sine_series`, `trend_series`, `discrete_series`)
+  - `stats.py` — расчёт статистик (`mean`, `median`, `spread`, `summarize`, `quartiles_iqr`)
+  - `moving_average.py` — `SMA`, `WMA`, центрированное МА, `EMA` и замер производительности
+  - `deque_average.py` — реализация скользящих средних через `deque`
+  - `io_json.py` — сохранение и чтение рядов в формате JSON
+  - `io_file.py` — чтение рядов из текстовых файлов (`.txt`, `.csv`)
+- `main.py` — точка входа CLI
+- `README.md` — описание проекта и примеры запуска
 
 ## Примеры запуска
 
+По умолчанию используется `--kind discrete`, `--n 1000` и `--window 10`:
+
 ```bash
-python main.py --kind sine --n 20 --window 3 --alpha 0.3 --seed 7
-python main.py --kind sine --n 20 --save data/s.json
-python main.py --load data/s.json --window 3
-python main.py --kind trend --n 30 --export out.csv
+python main.py
+python main.py --kind discrete --n 1000 --window 9 --seed 42
+python main.py --kind discrete --n 1000 --window 10 --seed 42
+python main.py --kind discrete --n 1000 --save data/discrete.json
+python main.py --load data/discrete.json --window 10
+python main.py --kind discrete --n 1000 --export out.csv
 ```
 
 ### Замер производительности скользящей средней
@@ -29,7 +40,7 @@ python main.py --kind trend --n 30 --export out.csv
 Для сравнения реализаций SMA через список и через `deque` используйте флаг `--benchmark`:
 
 ```bash
-python main.py --kind random --n 5000 --window 20 --benchmark
+python main.py --kind discrete --n 1000 --window 10 --benchmark
 ```
 
 Будут выведены средние времена выполнения (в секундах) для обеих реализаций.
