@@ -1,6 +1,6 @@
 """Тесты модуля num_series.stats."""
 import pytest
-from num_series.stats import mean, median, spread, summarize
+from num_series.stats import mean, median, spread, summarize, quartiles_iqr
 
 class TestMean:
     @pytest.mark.parametrize("data, expected", [
@@ -74,3 +74,19 @@ class TestSummarize:
     def test_empty_raises(self):
         with pytest.raises(ValueError):
             summarize([])
+
+class TestQuartilesIQR:
+    @pytest.mark.parametrize("data, expected_q1, expected_q3, expected_iqr", [
+        ([1, 2, 3, 4, 5], 1.5, 4.5, 3.0),
+        ([1, 2, 3, 4, 5, 6], 2.0, 5.0, 3.0),
+        ([10, 20, 30, 40], 15.0, 35.0, 20.0),
+    ])
+    def test_quartiles_even_and_odd_lengths(self, data, expected_q1, expected_q3, expected_iqr):
+        q1, q3, iqr = quartiles_iqr(data)
+        assert q1 == pytest.approx(expected_q1)
+        assert q3 == pytest.approx(expected_q3)
+        assert iqr == pytest.approx(expected_iqr)
+
+    def test_empty_raises(self):
+        with pytest.raises(ValueError):
+            quartiles_iqr([])

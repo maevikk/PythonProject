@@ -88,3 +88,14 @@ class TestTrendSeries:
 
     def test_reproducible(self):
         assert trend_series(10, noise=0.5, seed=3) == trend_series(10, noise=0.5, seed=3)
+
+class TestDiscreteSeries:
+    def test_length_and_seed_reproducibility(self):
+        a = discrete_series(1000, seed=42)
+        b = discrete_series(1000, seed=42)
+        assert len(a) == 1000
+        assert a == b
+
+    def test_allowed_values(self):
+        data = discrete_series(200, seed=1)
+        assert all(x in {1, 2, 3, 4, 5, 1.0, 2.0, 3.0, 4.0, 5.0} for x in data)

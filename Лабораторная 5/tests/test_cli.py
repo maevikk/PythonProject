@@ -25,13 +25,22 @@ class TestCLI:
         assert "SMA" in r.stdout
 
     def test_all_kinds_work(self):
-        for kind in ("random", "sine", "trend"):
+        for kind in ("random", "sine", "trend", "discrete"):
             r = run_cli("--kind", kind, "--n", "10")
             assert r.returncode == 0, f"{kind}: {r.stderr}"
 
     def test_defaults_work(self):
         r = run_cli()
-        assert r.returncode == 0
+        assert r.returncode == 0, r.stderr
+
+    def test_variant7_output_even_and_odd_window(self):
+        for w in ("9", "10"):
+            r = run_cli("--kind", "discrete", "--n", "100", "--window", w, "--seed", "42")
+            assert r.returncode == 0, r.stderr
+            assert "Q1" in r.stdout
+            assert "Q3" in r.stdout
+            assert "IQR" in r.stdout
+            assert "WMA" in r.stdout
 
     def test_invalid_kind_fails(self):
         r = run_cli("--kind", "foo")

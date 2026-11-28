@@ -1,4 +1,4 @@
-"""Тесты модуля num_series.moving_average (SMA, CMA, EMA, benchmark)."""
+"""Тесты модуля num_series.moving_average (SMA, CMA, EMA, WMA, benchmark)."""
 import random
 import pytest
 from num_series.moving_average import (
@@ -6,7 +6,9 @@ from num_series.moving_average import (
     centered_moving_average,
     exponential_moving_average,
     benchmark_moving_average,
+    wma,
 )
+
 
 class TestSimpleMovingAverage:
     def test_window_equals_length(self):
@@ -49,6 +51,7 @@ class TestSimpleMovingAverage:
         with pytest.raises(ValueError):
             simple_moving_average([], 1)
 
+
 class TestCenteredMovingAverage:
     def test_basic(self):
         assert centered_moving_average([1, 2, 3, 4, 5], 3) == [2.0, 3.0, 4.0]
@@ -56,6 +59,7 @@ class TestCenteredMovingAverage:
     def test_even_window_raises(self):
         with pytest.raises(ValueError, match="нечётным"):
             centered_moving_average([1, 2, 3, 4], 2)
+
 
 class TestExponentialMovingAverage:
     def test_alpha_1_returns_original(self):
@@ -75,6 +79,20 @@ class TestExponentialMovingAverage:
     def test_empty_raises(self):
         with pytest.raises(ValueError):
             exponential_moving_average([], alpha=0.5)
+
+
+class TestWeightedMovingAverage:
+    @pytest.mark.parametrize("window", [3, 4])
+    def test_wma_even_and_odd_window(self, window):
+        data = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0]
+        weights = list(range(1, window + 1))
+        w_sum = sum(weights)
+        expected = [
+            sum(x * w for x, w in zip(data[i - window + 1:i + 1], weights)) / w_sum
+            for i in range(window - 1, len(data))
+        ]
+        assert wma(data, window) == pytest.approx(expected)
+
 
 class TestBenchmarkMovingAverage:
     def test_returns_positive_timings(self):
